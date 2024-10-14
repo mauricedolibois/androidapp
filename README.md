@@ -3,6 +3,8 @@
 
 ![Companion App Logo](radio-title.png)  
 
+[>>> Link to Operation Silent Chaos Game <<<](https://github.com/mauricedolibois/multiplatformproject)
+
 ## Table of Contents  
 1. [Overview](#overview)  
 2. [Technologies Used](#technologies-used)  
