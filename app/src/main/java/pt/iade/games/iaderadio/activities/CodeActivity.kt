@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import pt.iade.games.iaderadio.R
+import pt.iade.games.iaderadio.services.FileHelper
 import pt.iade.games.iaderadio.ui.components.InputField
 
 class CodeActivity : ComponentActivity() {
@@ -41,10 +42,9 @@ class CodeActivity : ComponentActivity() {
                             if (gameCode.isNotEmpty()) {
                                 // Log the navigation attempt
                                 Log.d("CodeActivity", "Navigating to MenuActivity with code: $gameCode")
-
-                                // Intent to start MenuActivity
                                 val intent = Intent(this, MenuActivity::class.java)
                                 intent.putExtra("GAME_CODE", gameCode)
+                                FileHelper.writeGameCodeToFile(this, gameCode) // Using FileHelper                                startActivity(intent)
                                 startActivity(intent)
                             } else {
                                 // Log if the code is empty
@@ -57,6 +57,10 @@ class CodeActivity : ComponentActivity() {
         }
     }
 }
+
+
+
+
 
 @Composable
 fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
