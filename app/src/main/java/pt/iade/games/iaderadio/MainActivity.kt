@@ -1,5 +1,6 @@
 package pt.iade.games.iaderadio
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.compose.AppTheme
+import pt.iade.games.iaderadio.activities.CodeActivity
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,7 +25,10 @@ class MainActivity : ComponentActivity() {
                     Greeting(
                         name = "Android",
                         modifier = Modifier.padding(innerPadding)
+
                     )
+                    val intent = Intent(this, CodeActivity::class.java)
+                    startActivity(intent)
                 }
             }
         }

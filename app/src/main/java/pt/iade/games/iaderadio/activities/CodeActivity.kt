@@ -1,5 +1,6 @@
 package pt.iade.games.iaderadio.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -35,7 +36,21 @@ class CodeActivity : ComponentActivity() {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     CodeScreen(
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
+                        onSubmit = { gameCode ->
+                            if (gameCode.isNotEmpty()) {
+                                // Log the navigation attempt
+                                Log.d("CodeActivity", "Navigating to MenuActivity with code: $gameCode")
+
+                                // Intent to start MenuActivity
+                                val intent = Intent(this, MenuActivity::class.java)
+                                intent.putExtra("GAME_CODE", gameCode)
+                                startActivity(intent)
+                            } else {
+                                // Log if the code is empty
+                                Log.d("CodeActivity", "Game code is empty. Cannot navigate.")
+                            }
+                        }
                     )
                 }
             }
@@ -44,12 +59,12 @@ class CodeActivity : ComponentActivity() {
 }
 
 @Composable
-fun CodeScreen(modifier: Modifier = Modifier) {
+fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp),
-        verticalArrangement = Arrangement.Top // Align items to the top of the screen
+        verticalArrangement = Arrangement.Top
     ) {
         Image(
             painter = painterResource(id = R.drawable.iade_radio_logo),
@@ -59,26 +74,24 @@ fun CodeScreen(modifier: Modifier = Modifier) {
                 .height(150.dp)
         )
 
-        // Input field
-        var textState by remember { mutableStateOf(TextFieldValue("")) } // Manage the state for the input field
-        var submittedText by remember { mutableStateOf("") } // Store the submitted text
+        var textState by remember { mutableStateOf(TextFieldValue("")) }
 
         InputField(
             placeholder = "ENTER GAME CODE",
             value = textState,
-            onValueChange = { textState = it }, // Update the textState when the value changes
+            onValueChange = { textState = it },
             onSubmit = { inputText ->
-                submittedText = inputText // Update submittedText with the entered value
-                Log.d("IadeRadioScreen", "Submitted text: $submittedText") // Log the submitted text
+                Log.d("CodeScreen", "Submitted text: $inputText")
+                onSubmit(inputText)
             }
         )
     }
 }
 
-@Preview(showBackground = false)
+@Preview(showBackground = true)
 @Composable
-fun IadeRadioScreenPreview() {
+fun CodeScreenPreview() {
     AppTheme {
-        CodeScreen()
+        CodeScreen(onSubmit = {})
     }
 }
