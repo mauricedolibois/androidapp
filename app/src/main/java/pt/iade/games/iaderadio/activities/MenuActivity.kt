@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -26,6 +28,7 @@ import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.ui.components.ScanFrequencyButton
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -53,7 +56,8 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
             modifier = modifier
                 .fillMaxSize()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
                 painter = painterResource(id = R.drawable.iade_radio_logo),
@@ -82,14 +86,18 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
             ) {
                 Text(text = "New Game Code")
             }
+            ScanFrequencyButton()
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun MenuScreenPreview() {
     AppTheme {
-        MenuScreen(code = "123456")
+        Column {
+            MenuScreen(code = "123456")
+        }
     }
 }
