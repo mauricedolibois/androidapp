@@ -6,7 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +27,7 @@ import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.ui.components.NotesButton
 import pt.iade.games.iaderadio.ui.components.ScanFrequencyButton
 
 class MenuActivity : ComponentActivity() {
@@ -87,6 +87,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                 Text(text = "New Game Code")
             }
             ScanFrequencyButton()
+            NotesButton()
         }
     }
 }

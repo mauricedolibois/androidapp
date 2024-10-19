@@ -1,7 +1,6 @@
 package pt.iade.games.iaderadio.ui.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -16,25 +15,24 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 
 @Composable
-fun ScanFrequencyButton() {
+fun NotesButton() {
     AppTheme {
         OutlinedButton(
-            onClick = { },
+            onClick = {},
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .width(200.dp)
-                .height(125.dp)
-            ) {
+        ) {
             Text(
-                text = "Scan\nFrequency",
+                text = "Notes",
                 color = Color(
                     red = 1f,
                     green = 1f,
                     blue = 1f,
                     alpha = 1f
                 ),
-                fontSize = 30.sp,
-                textAlign = TextAlign.Center,
+                fontSize = 20.sp,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -42,6 +40,6 @@ fun ScanFrequencyButton() {
 
 @Composable
 @Preview(showBackground = true)
-fun PreviewScanFrequencyButton() {
-    ScanFrequencyButton()
+fun previewButton() {
+    NotesButton()
 }
