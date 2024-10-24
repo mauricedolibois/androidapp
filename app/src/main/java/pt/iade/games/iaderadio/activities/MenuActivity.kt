@@ -36,7 +36,7 @@ class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val gameCode = intent.getStringExtra("GAME_CODE") ?: "Unknown Code"
+        val gameCode = FileHelper.readGameCodeFromFile(this).toString()
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

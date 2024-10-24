@@ -27,13 +27,9 @@ fun StartApp(context: Context) {
 
         val gameCode = FileHelper.readGameCodeFromFile(context)
         val intent = if (gameCode != null) {
-            Intent(context, MenuActivity::class.java).apply {
-                putExtra("GAME_CODE", gameCode)
-            }
+            Intent(context, MenuActivity::class.java)
         } else {
             Intent(context, CodeActivity::class.java)
         }
-
         context.startActivity(intent)
-
 }

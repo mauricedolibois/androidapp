@@ -76,6 +76,7 @@ fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
+                .padding(bottom = 50.dp)
         )
 
         var textState by remember { mutableStateOf(TextFieldValue("")) }
