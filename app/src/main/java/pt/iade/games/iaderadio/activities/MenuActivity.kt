@@ -93,7 +93,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
             }
 
             MenuButton("Scan\nFrequency",125, onClick = {})
-            MenuButton("Notes",50, onClick = {})
+            MenuButton("Notes",55, onClick = {})
         }
     }
 }
