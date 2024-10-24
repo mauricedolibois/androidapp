@@ -83,7 +83,11 @@ fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
         InputField(
             placeholder = "ENTER GAME CODE",
             value = textState,
-            onValueChange = { textState = it },
+            onValueChange = { newValue ->
+                if (newValue.text.matches(Regex("^[a-zA-Z\\d]*$")) && newValue.text.length <= 5) { // filtering letters and numbers, max 5 characters
+                    textState = newValue.copy(text = newValue.text.uppercase())
+                }
+            },
             onSubmit = { inputText ->
                 Log.d("CodeScreen", "Submitted text: $inputText")
                 onSubmit(inputText)

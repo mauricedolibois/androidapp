@@ -8,11 +8,14 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,13 +23,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.ui.components.IconButton
 import pt.iade.games.iaderadio.ui.components.MenuButton
 
 class MenuActivity : ComponentActivity() {
@@ -66,24 +69,27 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                     .height(150.dp)
             )
 
-            Text(
-                text = "GAME CODE: $code",
-                color = textLight,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
+            Row(
+                modifier = Modifier
+                    .width(250.dp),
+                horizontalArrangement = Arrangement.Absolute.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "GAME CODE: $code",
+                    color = textLight,
+                    modifier = Modifier.weight(1f)
+                )
 
-            Button(
-                onClick = {
+                IconButton(
+                    icon = Icons.AutoMirrored.Rounded.Logout,
+                    contentDescription = "Logout",
+                    onClick = {
                         val intent = Intent(context, CodeActivity::class.java)
                         FileHelper.deleteGameCodeFile(context)
                         context.startActivity(intent)
-                    },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 16.dp)
-            ) {
-                Text(text = "New Game Code")
+                    }
+                )
             }
 
             MenuButton("Scan\nFrequency",125)
