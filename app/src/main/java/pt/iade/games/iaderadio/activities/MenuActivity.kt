@@ -71,7 +71,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
 
             Row(
                 modifier = Modifier
-                    .width(250.dp),
+                    .width(250.dp).padding(bottom = 50.dp),
                 horizontalArrangement = Arrangement.Absolute.Center,
                 verticalAlignment = Alignment.CenterVertically
             ) {
