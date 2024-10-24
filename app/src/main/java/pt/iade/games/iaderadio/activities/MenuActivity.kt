@@ -94,7 +94,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
             MenuButton("Scan\nFrequency",125, onClick = {
                 val intent = Intent(context, FrequencyActivity::class.java)
                 context.startActivity(intent)
-            })
+            },27)
             MenuButton("Notes",55, onClick = {})
         }
     }

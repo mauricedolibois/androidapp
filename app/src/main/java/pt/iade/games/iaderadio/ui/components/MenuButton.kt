@@ -21,7 +21,8 @@ import com.example.compose.AppTheme
 fun MenuButton(
     text: String,
     height: Int,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    fontSize: Int = 20
 ) {
     AppTheme {
         OutlinedButton(
@@ -40,7 +41,7 @@ fun MenuButton(
                     blue = 1f,
                     alpha = 1f
                 ),
-                fontSize = 20.sp,
+                fontSize = fontSize.sp,
                 textAlign = TextAlign.Center
             )
         }
