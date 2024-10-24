@@ -27,8 +27,7 @@ import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
-import pt.iade.games.iaderadio.ui.components.NotesButton
-import pt.iade.games.iaderadio.ui.components.ScanFrequencyButton
+import pt.iade.games.iaderadio.ui.components.MenuButton
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -86,8 +85,9 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
             ) {
                 Text(text = "New Game Code")
             }
-            ScanFrequencyButton()
-            NotesButton()
+
+            MenuButton("Scan\nFrequency",125)
+            MenuButton("Notes",50)
         }
     }
 }

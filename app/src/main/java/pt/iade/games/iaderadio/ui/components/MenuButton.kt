@@ -1,6 +1,8 @@
 package pt.iade.games.iaderadio.ui.components
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -15,16 +17,20 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 
 @Composable
-fun NotesButton() {
+fun MenuButton(
+    text: String,
+    height: Int
+) {
     AppTheme {
         OutlinedButton(
             onClick = {},
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
             modifier = Modifier
                 .width(200.dp)
+                .height(height.dp)
         ) {
             Text(
-                text = "Notes",
+                text = text,
                 color = Color(
                     red = 1f,
                     green = 1f,
@@ -40,6 +46,9 @@ fun NotesButton() {
 
 @Composable
 @Preview(showBackground = true)
-fun previewButton() {
-    NotesButton()
+fun PreviewButton() {
+    Column {
+        MenuButton("Scan\nFrequency",125)
+        MenuButton("Notes",50)
+    }
 }
