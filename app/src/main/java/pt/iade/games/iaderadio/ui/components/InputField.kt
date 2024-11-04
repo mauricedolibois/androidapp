@@ -22,13 +22,14 @@ import com.example.compose.tertiaryContainerLightMediumContrast
 fun InputField(
     placeholder: String = "",
     value: TextFieldValue,
+    modifier: Modifier,
     onValueChange: (TextFieldValue) -> Unit,
     onSubmit: (String) -> Unit // Function to be called with the input text when Enter is pressed
 ) {
     var isError by remember { mutableStateOf(false) }
 
     AppTheme {
-        Column {
+        Column (modifier = modifier) {
             OutlinedTextField(
                 value = value,
                 onValueChange = {
@@ -82,6 +83,7 @@ fun InputFieldPreview() {
 
     InputField(
         placeholder = "ENTER GAME CODE",
+        modifier = Modifier,
         value = textState,
         onValueChange = { textState = it },
         onSubmit = { inputText ->
