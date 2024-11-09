@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 import com.example.compose.outlineLight
+import com.example.compose.primaryDark
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
 
 @Composable
@@ -38,7 +39,7 @@ fun ScanFrequency(
                 text = "Scan Frequency",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
-                color = outlineLight,
+                color = primaryDark,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 

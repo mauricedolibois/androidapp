@@ -122,7 +122,7 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String) {
             }
             Text(
                 text = "Your Audio:",
-                color = primaryDark,
+                color = Color.White,
                 textAlign = TextAlign.Center,
                 style = androidx.compose.ui.text.TextStyle(
                     fontSize = 20.sp,
