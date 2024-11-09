@@ -144,9 +144,9 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String) {
                         .height(70.dp)
                         .padding(horizontal = 16.dp),         // Add horizontal padding
                     waveLength = 500f,
-                    waveHeight = 22f,
+                    waveHeight = 40f,
                     speed = 2f,
-                    segments = 5
+                    segments = 9
                 )
             }
         }

@@ -38,7 +38,7 @@ fun AudioLine(
 
         val path = Path().apply {
             moveTo(0f, centerY)  // Start from the left center
-            for (i in 0..segments) {
+            for (i in 1..segments) {
                 val x = i * segmentWidth
                 val y = centerY + waveHeight * sin((x / waveLength) * 2 * Math.PI.toFloat() + phaseShift)
                 lineTo(x, y)
