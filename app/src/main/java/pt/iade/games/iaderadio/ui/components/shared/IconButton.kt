@@ -1,4 +1,4 @@
-package pt.iade.games.iaderadio.ui.components
+package pt.iade.games.iaderadio.ui.components.shared
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon

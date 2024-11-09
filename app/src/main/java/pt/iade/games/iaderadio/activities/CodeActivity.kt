@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
-import pt.iade.games.iaderadio.ui.components.InputField
+import pt.iade.games.iaderadio.ui.components.shared.InputField
 
 class CodeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

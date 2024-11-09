@@ -1,4 +1,4 @@
-package pt.iade.games.iaderadio.ui.components
+package pt.iade.games.iaderadio.ui.components.menu
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column

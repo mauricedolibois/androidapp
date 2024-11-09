@@ -1,4 +1,4 @@
-package pt.iade.games.iaderadio.ui.components
+package pt.iade.games.iaderadio.ui.components.shared
 
 import android.util.Log
 import androidx.compose.foundation.background

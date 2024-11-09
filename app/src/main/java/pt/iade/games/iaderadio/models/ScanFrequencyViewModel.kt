@@ -19,9 +19,10 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
     private val minFrequency = 30.0
     private val maxFrequency = 300.0
 
-    var frequency by mutableDoubleStateOf(100.0) // Initial frequency value
+    var frequency by mutableDoubleStateOf(100.0) // Current frequency
         private set
 
+    private var lockedFrequency: Double? = null // Holds the frequency when locked
     private var gravity: FloatArray? = null
     private var geomagnetic: FloatArray? = null
 
@@ -34,6 +35,14 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
         }
     }
 
+    fun lockFrequency(locked: Boolean) {
+        if (locked) {
+            lockedFrequency = frequency
+        } else {
+            lockedFrequency = null
+        }
+    }
+
     override fun onSensorChanged(event: SensorEvent?) {
         event?.let {
             when (it.sensor.type) {
@@ -41,7 +50,7 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
                 Sensor.TYPE_MAGNETIC_FIELD -> geomagnetic = it.values
             }
 
-            if (gravity != null && geomagnetic != null) {
+            if (gravity != null && geomagnetic != null && lockedFrequency == null) {
                 val R = FloatArray(9)
                 val I = FloatArray(9)
                 if (SensorManager.getRotationMatrix(R, I, gravity, geomagnetic)) {
@@ -67,3 +76,4 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
         sensorManager.unregisterListener(this)
     }
 }
+

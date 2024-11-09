@@ -29,8 +29,8 @@ import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.FileHelper
-import pt.iade.games.iaderadio.ui.components.IconButton
-import pt.iade.games.iaderadio.ui.components.MenuButton
+import pt.iade.games.iaderadio.ui.components.shared.IconButton
+import pt.iade.games.iaderadio.ui.components.menu.MenuButton
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
