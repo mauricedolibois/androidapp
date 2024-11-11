@@ -16,11 +16,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
+import com.example.compose.textLight
 
 @Composable
 fun MenuButton(
     text: String,
-    height: Int,
+    modifier: Modifier,
+    color: Color = Color(
+        red = 1f,
+        green = 1f,
+        blue = 1f,
+        alpha = 1f
+    ),
     onClick: () -> Unit,
     fontSize: Int = 20
 ) {
@@ -28,19 +35,12 @@ fun MenuButton(
         OutlinedButton(
             onClick = onClick,
             border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
-            modifier = Modifier
-                .width(200.dp)
-                .height(height.dp)
+            modifier = modifier
                 .padding(10.dp)
         ) {
             Text(
                 text = text,
-                color = Color(
-                    red = 1f,
-                    green = 1f,
-                    blue = 1f,
-                    alpha = 1f
-                ),
+                color = color,
                 fontSize = fontSize.sp,
                 textAlign = TextAlign.Center
             )
@@ -52,7 +52,7 @@ fun MenuButton(
 @Preview(showBackground = true)
 fun PreviewButton() {
     Column {
-        MenuButton("Scan\nFrequency",125, onClick = {})
-        MenuButton("Notes",50, onClick = {})
+        MenuButton("Scan\nFrequency", modifier = Modifier.height(125.dp).width(400.dp), onClick = {})
+        MenuButton("Notes",modifier = Modifier.height(50.dp), color = textLight, onClick = {})
     }
 }

@@ -42,7 +42,7 @@ class MenuActivity : ComponentActivity() {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     MenuScreen(
                         code = gameCode,
-                        modifier = Modifier.padding(innerPadding)
+                        modifier = Modifier.padding(innerPadding),
                     )
                 }
             }
@@ -51,7 +51,7 @@ class MenuActivity : ComponentActivity() {
 }
 
 @Composable
-fun MenuScreen(modifier: Modifier = Modifier, code: String) {
+fun MenuScreen(modifier: Modifier = Modifier, code: String, room: String = "A1", enemyCount: Int = 3) {
     val context = LocalContext.current
     AppTheme {
         Column(
@@ -91,17 +91,30 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                     }
                 )
             }
-            MenuButton("Scan\nFrequency",125, onClick = {
+            MenuButton("Scan\nFrequency",modifier = Modifier.height(125.dp).width(335.dp), onClick = {
                 val intent = Intent(context, FrequencyActivity::class.java)
                 context.startActivity(intent)
-            },27)
-            MenuButton("Notes",55, onClick = {})
+            }, fontSize = 30)
+            Text(
+                text = "Current Room: $room",
+                color = textLight,
+                modifier = Modifier.padding(top = 50.dp)
+            )
+            Text(
+                text = "Enemy Communications Detected: $enemyCount",
+                color = textLight,
+                modifier = Modifier.padding(bottom = 30.dp)
+            )
+            MenuButton("Notes",modifier = Modifier.height(70.dp).width(200.dp),color = textLight, onClick = {
+                val intent = Intent(context, NotesActivity::class.java)
+                context.startActivity(intent)
+            })
         }
     }
 }
 
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
 fun MenuScreenPreview() {
     AppTheme {
