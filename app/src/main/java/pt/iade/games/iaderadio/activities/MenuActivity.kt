@@ -28,7 +28,8 @@ import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.R
-import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.services.fileService.FileHelper
+import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
 import pt.iade.games.iaderadio.ui.components.menu.MenuButton
 
@@ -36,7 +37,7 @@ class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val gameCode = FileHelper.readGameCodeFromFile(this).toString()
+        val gameCode = FileHelper.readTextFromFile(this, Files.GAME_CODE).toString()
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -86,7 +87,8 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String, room: String = "A1",
                     contentDescription = "Logout",
                     onClick = {
                         val intent = Intent(context, CodeActivity::class.java)
-                        FileHelper.deleteGameCodeFile(context)
+                        FileHelper.deleteTextFile(context, Files.GAME_CODE)
+                        FileHelper.deleteTextFile(context, Files.NOTES)
                         context.startActivity(intent)
                     }
                 )

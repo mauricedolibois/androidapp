@@ -32,7 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 import pt.iade.games.iaderadio.R
-import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.services.fileService.FileHelper
+import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.shared.InputField
 
 class CodeActivity : ComponentActivity() {
@@ -50,7 +51,7 @@ class CodeActivity : ComponentActivity() {
                                 Log.d("CodeActivity", "Navigating to MenuActivity with code: $gameCode")
                                 val intent = Intent(this, MenuActivity::class.java)
                                 intent.putExtra("GAME_CODE", gameCode)
-                                FileHelper.writeGameCodeToFile(this, gameCode) // Using FileHelper                                startActivity(intent)
+                                FileHelper.writeTextToFile(this, gameCode, Files.GAME_CODE) // Using FileHelper                                startActivity(intent)
                                 startActivity(intent)
                             } else {
                                 // Log if the code is empty

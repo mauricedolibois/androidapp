@@ -39,7 +39,8 @@ import com.example.compose.outlineLight
 import com.example.compose.textLight
 import pt.iade.games.iaderadio.MainActivity
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
-import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.services.fileService.FileHelper
+import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.LockButton
 import pt.iade.games.iaderadio.ui.components.frequency.AudioCirlce
 import pt.iade.games.iaderadio.ui.components.frequency.AudioLine
@@ -50,7 +51,7 @@ class FrequencyActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val gameCode = FileHelper.readGameCodeFromFile(this).toString()
+        val gameCode = FileHelper.readTextFromFile(this, Files.GAME_CODE).toString()
         setContent {
             AppTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->

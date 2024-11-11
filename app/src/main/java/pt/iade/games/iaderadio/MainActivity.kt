@@ -9,7 +9,8 @@ import androidx.activity.enableEdgeToEdge
 import com.example.compose.AppTheme
 import pt.iade.games.iaderadio.activities.CodeActivity
 import pt.iade.games.iaderadio.activities.MenuActivity
-import pt.iade.games.iaderadio.services.FileHelper
+import pt.iade.games.iaderadio.services.fileService.FileHelper
+import pt.iade.games.iaderadio.services.fileService.Files
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
 fun StartApp(context: Context) {
 
-        val gameCode = FileHelper.readGameCodeFromFile(context)
+        val gameCode = FileHelper.readTextFromFile(context, Files.GAME_CODE)
         val intent = if (gameCode != null) {
             Intent(context, MenuActivity::class.java)
         } else {
