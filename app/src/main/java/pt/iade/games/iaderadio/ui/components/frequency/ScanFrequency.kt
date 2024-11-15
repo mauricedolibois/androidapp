@@ -13,7 +13,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
-import com.example.compose.outlineLight
 import com.example.compose.primaryDark
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
 

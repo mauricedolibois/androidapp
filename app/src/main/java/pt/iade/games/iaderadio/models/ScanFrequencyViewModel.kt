@@ -17,7 +17,7 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
     private val magnetometer = sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD)
 
     private val minFrequency = 30.0
-    private val maxFrequency = 300.0
+    private val maxFrequency = 120.0
 
     var frequency by mutableDoubleStateOf(100.0) // Current frequency
         private set
