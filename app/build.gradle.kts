@@ -50,6 +50,11 @@ android {
 }
 
 dependencies {
+    implementation("androidx.appcompat:appcompat:1.3.1")
+    implementation("net.java.dev.jna:jna:5.13.0@aar")
+    implementation("com.alphacephei:vosk-android:0.3.47@aar")
+    implementation(project(":models"))
+    implementation("com.alphacephei:vosk-android:0.3.37")
     implementation(libs.androidx.material)
     implementation(libs.androidx.material.icons.core)
     implementation(libs.androidx.material.icons.extended)

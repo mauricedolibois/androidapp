@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -30,8 +31,11 @@ import com.example.compose.outlineLight
 import com.example.compose.textLight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.vosk.android.StorageService
+//import assets folder from pt.iade.games.iaderadio exact location as R
 import pt.iade.games.iaderadio.MainActivity
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
+import pt.iade.games.iaderadio.services.audioService.VoskService
 import pt.iade.games.iaderadio.services.audioService.AudioRecorder
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
@@ -44,6 +48,7 @@ import pt.iade.games.iaderadio.ui.components.shared.IconButton
 class FrequencyActivity : ComponentActivity() {
 
     private lateinit var audioRecorder: AudioRecorder
+    private lateinit var voskService: VoskService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,12 +56,14 @@ class FrequencyActivity : ComponentActivity() {
 
         // Initialize AudioRecorder
         audioRecorder = AudioRecorder(this)
+        voskService = VoskService(this)
 
         // Check permissions
         if (!hasRequiredPermissions()) {
             requestPermissions()
         } else {
             audioRecorder.startRecording()
+            initializeVosk()
         }
 
         // Read game code
@@ -68,14 +75,27 @@ class FrequencyActivity : ComponentActivity() {
                     FrequencyScreen(
                         code = gameCode,
                         audioRecorder = audioRecorder,
+                        voskService = voskService,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
-
-
     }
+
+    private fun initializeVosk() {
+        voskService.initializeModel(
+            onModelLoaded = {
+                // Model successfully loaded
+                voskService.startListening()
+            },
+            onError = { exception ->
+                // Handle the error
+                Log.e("VoskService", "Error initializing model: ${exception.message}")
+            }
+        )
+    }
+
 
     private fun hasRequiredPermissions(): Boolean {
         return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED &&
@@ -91,22 +111,30 @@ class FrequencyActivity : ComponentActivity() {
         )
         ActivityCompat.requestPermissions(this, permissions, 0)
         audioRecorder.startRecording()
+        initializeVosk()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         audioRecorder.stopRecording()
-    }
+        voskService.stopListening()
+        voskService.shutdown()
 
+    }
 }
 
-
 @Composable
-fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: AudioRecorder) {
+fun FrequencyScreen(
+    modifier: Modifier = Modifier,
+    code: String,
+    audioRecorder: AudioRecorder,
+    voskService: VoskService
+) {
     val context = LocalContext.current
     val viewModel = ScanFrequencyViewModel(context)
     var isLocked by remember { mutableStateOf(false) }
     var waveHeight by remember { mutableStateOf(40f) } // Initial wave height
+    var recognizedText by remember { mutableStateOf("Listening...") }
     val coroutineScope = rememberCoroutineScope()
 
     // Start observing microphone volume
@@ -119,6 +147,20 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: 
         }
     }
 
+    // Listen for speech recognition results
+    LaunchedEffect(voskService) {
+        voskService.onResult = { text ->
+            Log.d("VoskService", "Recognized text: $text")
+            if (text.contains("partial") && !text.contains("\"\"")) {
+                // Extract the content between the second pair of double quotes
+                val partialResult = text.substringAfter(": \"").substringBefore("\"")
+                recognizedText = partialResult
+            } }
+        voskService.onError = { error ->
+            recognizedText = "Error: $error"
+        }
+    }
+
     AppTheme {
         Column(
             modifier = modifier
@@ -128,8 +170,7 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: 
             verticalArrangement = Arrangement.Top
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
@@ -137,6 +178,7 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: 
                     contentDescription = "Go Back",
                     onClick = {
                         audioRecorder.stopRecording()
+                        voskService.stopListening()
                         val intent = Intent(context, MainActivity::class.java)
                         context.startActivity(intent)
                     }
@@ -191,11 +233,10 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: 
                     speed = 2f,
                     segments = 9
                 )
-
             }
             Text(
                 modifier = Modifier.padding(top = 16.dp),
-                text = " speechtotexttext",
+                text = recognizedText,
                 color = textLight,
                 textAlign = TextAlign.Center
             )
@@ -206,4 +247,9 @@ fun FrequencyScreen(modifier: Modifier = Modifier, code: String, audioRecorder: 
 @Preview(showBackground = true)
 @Composable
 fun FrequencyActivityPreview() {
+    FrequencyScreen(
+    code = "PREVIEW_CODE",
+    voskService = VoskService(LocalContext.current),
+    audioRecorder = AudioRecorder(LocalContext.current)
+    )
 }

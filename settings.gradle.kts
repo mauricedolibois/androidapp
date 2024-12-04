@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "IADE Radio"
 include(":app")
- 
+include(":models")
