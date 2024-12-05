@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
@@ -31,12 +32,11 @@ import com.example.compose.outlineLight
 import com.example.compose.textLight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.vosk.android.StorageService
-//import assets folder from pt.iade.games.iaderadio exact location as R
+import pt.iade.games.iaderadio.services.audioService.VoskService
 import pt.iade.games.iaderadio.MainActivity
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
-import pt.iade.games.iaderadio.services.audioService.VoskService
 import pt.iade.games.iaderadio.services.audioService.AudioRecorder
+import pt.iade.games.iaderadio.services.audioService.SoundManager
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.LockButton
@@ -49,6 +49,8 @@ class FrequencyActivity : ComponentActivity() {
 
     private lateinit var audioRecorder: AudioRecorder
     private lateinit var voskService: VoskService
+    private lateinit var soundManager: SoundManager
+    private var isVoskInitialized = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,11 +59,13 @@ class FrequencyActivity : ComponentActivity() {
         // Initialize AudioRecorder
         audioRecorder = AudioRecorder(this)
         voskService = VoskService(this)
+        soundManager = SoundManager(this)
 
         // Check permissions
         if (!hasRequiredPermissions()) {
             requestPermissions()
         } else {
+            soundManager.playRadioEffect()
             audioRecorder.startRecording()
             initializeVosk()
         }
@@ -76,6 +80,7 @@ class FrequencyActivity : ComponentActivity() {
                         code = gameCode,
                         audioRecorder = audioRecorder,
                         voskService = voskService,
+                        soundManager = soundManager,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
@@ -84,9 +89,11 @@ class FrequencyActivity : ComponentActivity() {
     }
 
     private fun initializeVosk() {
+        if (isVoskInitialized) return
         voskService.initializeModel(
             onModelLoaded = {
                 // Model successfully loaded
+                isVoskInitialized = true
                 voskService.startListening()
             },
             onError = { exception ->
@@ -112,6 +119,7 @@ class FrequencyActivity : ComponentActivity() {
         ActivityCompat.requestPermissions(this, permissions, 0)
         audioRecorder.startRecording()
         initializeVosk()
+        soundManager.playRadioEffect()
     }
 
     override fun onDestroy() {
@@ -119,7 +127,7 @@ class FrequencyActivity : ComponentActivity() {
         audioRecorder.stopRecording()
         voskService.stopListening()
         voskService.shutdown()
-
+        soundManager.stopCurrentSound()
     }
 }
 
@@ -128,12 +136,14 @@ fun FrequencyScreen(
     modifier: Modifier = Modifier,
     code: String,
     audioRecorder: AudioRecorder,
+    soundManager: SoundManager,
     voskService: VoskService
 ) {
     val context = LocalContext.current
     val viewModel = ScanFrequencyViewModel(context)
     var isLocked by remember { mutableStateOf(false) }
-    var waveHeight by remember { mutableStateOf(40f) } // Initial wave height
+    var waveHeight by remember { mutableFloatStateOf(40f) } // Initial wave height
+    var soundFactor by remember { mutableFloatStateOf(0f) }
     var recognizedText by remember { mutableStateOf("Listening...") }
     val coroutineScope = rememberCoroutineScope()
 
@@ -143,6 +153,16 @@ fun FrequencyScreen(
             while (true) {
                 waveHeight = audioRecorder.getCurrentMicrophoneVolume().toFloat()
                 delay(100L) // Refresh every 100ms
+            }
+        }
+    }
+
+    LaunchedEffect(soundManager) {
+        coroutineScope.launch {
+            while (true) {
+                soundFactor = soundManager.getCurrentAmplitude().toFloat()
+                Log.d("SoundFactor", soundFactor.toString())
+                delay(200L) // Random delay between 200 and 600ms
             }
         }
     }
@@ -179,6 +199,7 @@ fun FrequencyScreen(
                     onClick = {
                         audioRecorder.stopRecording()
                         voskService.stopListening()
+                        soundManager.stopCurrentSound()
                         val intent = Intent(context, MainActivity::class.java)
                         context.startActivity(intent)
                     }
@@ -200,7 +221,7 @@ fun FrequencyScreen(
                 modifier = Modifier.padding(top = 70.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                AudioCirlce(scale = 2f, modifier = Modifier.align(Alignment.Center))
+                AudioCirlce(scale = 2f, modifier = Modifier.align(Alignment.Center), factor = soundFactor)
                 LockButton(
                     isLocked = isLocked,
                     onToggleLock = { isLocked = it },
@@ -240,6 +261,7 @@ fun FrequencyScreen(
                 color = textLight,
                 textAlign = TextAlign.Center
             )
+            Button(onClick = {soundManager.playSoundById("abc")}) { Text("Play Sound") }
         }
     }
 }
@@ -248,8 +270,9 @@ fun FrequencyScreen(
 @Composable
 fun FrequencyActivityPreview() {
     FrequencyScreen(
-    code = "PREVIEW_CODE",
-    voskService = VoskService(LocalContext.current),
-    audioRecorder = AudioRecorder(LocalContext.current)
+        code = "PREVIEW_CODE",
+        voskService = VoskService(LocalContext.current),
+        audioRecorder = AudioRecorder(LocalContext.current),
+        soundManager = SoundManager(LocalContext.current)
     )
 }

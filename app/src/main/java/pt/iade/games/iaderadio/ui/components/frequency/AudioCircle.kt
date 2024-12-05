@@ -1,15 +1,8 @@
 package pt.iade.games.iaderadio.ui.components.frequency
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+
+import androidx.compose.animation.core.*
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -24,36 +17,51 @@ import com.example.compose.secondaryContainerLightMediumContrast
 import com.example.compose.secondaryLightMediumContrast
 
 @Composable
-fun AudioCirlce(scale: Float, modifier: Modifier = Modifier) {
+fun AudioCirlce(scale: Float, modifier: Modifier = Modifier, factor: Float = 0f) {
     val infiniteTransition = rememberInfiniteTransition(label = "")
     AppTheme {
         Box(modifier = modifier) {
-            // Create different scale animations for each circle layer
+            // Infinite transition for scaling animations
+            val infiniteTransition = rememberInfiniteTransition(label = "scalingAnimation")
+
+            // Define scaling animations for the three circles
             val scale1 by infiniteTransition.animateFloat(
                 initialValue = 1.0f * scale,
-                targetValue = 1.2f * scale,
+                targetValue = if (factor == 0f) 1.2f * scale else 1.0f * scale + factor * 0.1f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                    animation = tween(
+                        durationMillis = if (factor == 0f) 1200 else 100,
+                        easing = if (factor == 0f) FastOutSlowInEasing else Ease
+                    ),
                     repeatMode = RepeatMode.Reverse
-                ), label = ""
+                ),
+                label = "scale1Animation"
             )
 
             val scale2 by infiniteTransition.animateFloat(
                 initialValue = 1.0f * scale,
-                targetValue = 1.4f * scale,
+                targetValue = if (factor == 0f) 1.4f * scale else 1.0f * scale + factor * 0.2f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                    animation = tween(
+                        durationMillis = if (factor == 0f) 1200 else 100,
+                        easing = if (factor == 0f) FastOutSlowInEasing else Ease
+                    ),
                     repeatMode = RepeatMode.Reverse
-                ), label = ""
+                ),
+                label = "scale2Animation"
             )
 
             val scale3 by infiniteTransition.animateFloat(
                 initialValue = 1.0f * scale,
-                targetValue = 1.6f * scale,
+                targetValue = if (factor == 0f) 1.6f * scale else 1.0f * scale + factor * 0.3f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1200, easing = FastOutSlowInEasing),
+                    animation = tween(
+                        durationMillis = if (factor == 0f) 1200 else 100,
+                        easing = if (factor == 0f) FastOutSlowInEasing else LinearEasing
+                    ),
                     repeatMode = RepeatMode.Reverse
-                ), label = ""
+                ),
+                label = "scale3Animation"
             )
 
             Box(
@@ -62,14 +70,23 @@ fun AudioCirlce(scale: Float, modifier: Modifier = Modifier) {
                     .size(200.dp)
                     .padding(20.dp)
             ) {
-                // Draw three circles with different scale effects
+                // Draw three circles with their respective scaling animations
                 ScalableCircle(scale = scale1, color = inversePrimaryLight, strokeWidth = 6.dp)
-                ScalableCircle(scale = scale2, color = secondaryContainerLightMediumContrast, strokeWidth = 4.dp)
-                ScalableCircle(scale = scale3, color = secondaryLightMediumContrast, strokeWidth = 3.dp)
+                ScalableCircle(
+                    scale = scale2,
+                    color = secondaryContainerLightMediumContrast,
+                    strokeWidth = 4.dp
+                )
+                ScalableCircle(
+                    scale = scale3,
+                    color = secondaryLightMediumContrast,
+                    strokeWidth = 3.dp
+                )
             }
         }
     }
 }
+
 
 @Composable
 fun ScalableCircle(scale: Float, color: Color, strokeWidth: Dp) {
@@ -84,4 +101,3 @@ fun ScalableCircle(scale: Float, color: Color, strokeWidth: Dp) {
         }
     }
 }
-

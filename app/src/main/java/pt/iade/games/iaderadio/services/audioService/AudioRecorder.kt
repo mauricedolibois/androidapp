@@ -64,7 +64,6 @@ class AudioRecorder(private val context: Context) {
                 val file = File(outputFilePath)
                 if (file.exists() && file.length() > 0) {
                     Log.d("AudioRecorder", "File exists and is valid. Playing now.")
-                    //playRecordedAudio(outputFilePath)
                 } else {
                     Log.e("AudioRecorder", "Recording failed. File is invalid.")
                 }
@@ -76,30 +75,6 @@ class AudioRecorder(private val context: Context) {
         }
     }
 
-    private fun playRecordedAudio(filePath: String) {
-        try {
-            val mediaPlayer = MediaPlayer().apply {
-                setDataSource(filePath)
-                setOnPreparedListener {
-                    Log.d("AudioRecorder", "Playing recorded audio.")
-                    start()
-                }
-                setOnCompletionListener {
-                    Log.d("AudioRecorder", "Playback complete. Releasing resources.")
-                    release()
-                }
-                setOnErrorListener { mp, what, extra ->
-                    Log.e("MediaPlayer", "Playback error: what=$what, extra=$extra")
-                    mp.release()
-                    true
-                }
-            }
-            mediaPlayer.prepareAsync()
-        } catch (e: Exception) {
-            Log.e("AudioRecorder", "Error during playback: ${e.message}")
-            e.printStackTrace()
-        }
-    }
 
     fun getCurrentMicrophoneVolume(): Int {
         return if (isRecording) {
@@ -112,4 +87,5 @@ class AudioRecorder(private val context: Context) {
             5 // Return the minimum value if not recording
         }
     }
+
 }

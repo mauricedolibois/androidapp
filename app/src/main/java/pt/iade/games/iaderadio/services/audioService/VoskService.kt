@@ -77,27 +77,22 @@ class VoskService(private val context: Context) : RecognitionListener {
     }
 
     override fun onPartialResult(hypothesis: String?) {
-        Log.d("VoskService", "Partial result: $hypothesis")
         onResult?.invoke(hypothesis ?: "")
     }
 
     override fun onResult(hypothesis: String?) {
-        Log.d("VoskService", "Final result: $hypothesis")
         onResult?.invoke(hypothesis ?: "")
     }
 
     override fun onFinalResult(hypothesis: String?) {
-        Log.d("VoskService", "Final result: $hypothesis")
         onResult?.invoke(hypothesis ?: "")
     }
 
     override fun onError(exception: Exception?) {
-        Log.e("VoskService", "Error: ${exception?.message}")
         onError?.invoke(exception?.message ?: "Unknown error")
     }
 
     override fun onTimeout() {
-        Log.d("VoskService", "Timeout occurred")
         onError?.invoke("Timeout occurred")
     }
 }
