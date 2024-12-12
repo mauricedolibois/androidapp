@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import pt.iade.games.iaderadio.network.FuelClient
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -31,6 +32,7 @@ import com.example.compose.AppTheme
 import com.example.compose.outlineLight
 import com.example.compose.textLight
 import kotlinx.coroutines.delay
+import android.content.Context
 import kotlinx.coroutines.launch
 import pt.iade.games.iaderadio.services.audioService.VoskService
 import pt.iade.games.iaderadio.MainActivity
@@ -145,6 +147,7 @@ fun FrequencyScreen(
     var waveHeight by remember { mutableFloatStateOf(40f) } // Initial wave height
     var soundFactor by remember { mutableFloatStateOf(0f) }
     var recognizedText by remember { mutableStateOf("Listening...") }
+    var frequencyToMatch by remember { mutableStateOf("N/A") }
     val coroutineScope = rememberCoroutineScope()
 
     // Start observing microphone volume
@@ -157,27 +160,32 @@ fun FrequencyScreen(
         }
     }
 
-    LaunchedEffect(soundManager) {
+    // Fetch current room and frequency every 2 seconds
+    LaunchedEffect(Unit) {
         coroutineScope.launch {
             while (true) {
-                soundFactor = soundManager.getCurrentAmplitude().toFloat()
-                Log.d("SoundFactor", soundFactor.toString())
-                delay(200L) // Random delay between 200 and 600ms
-            }
-        }
-    }
+                val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val sessionId = sharedPref.getInt("sessionId", -1)
 
-    // Listen for speech recognition results
-    LaunchedEffect(voskService) {
-        voskService.onResult = { text ->
-            Log.d("VoskService", "Recognized text: $text")
-            if (text.contains("partial") && !text.contains("\"\"")) {
-                // Extract the content between the second pair of double quotes
-                val partialResult = text.substringAfter(": \"").substringBefore("\"")
-                recognizedText = partialResult
-            } }
-        voskService.onError = { error ->
-            recognizedText = "Error: $error"
+                if (sessionId != -1) {
+                    FuelClient.getCurrentRoomIDbySessionID(context, sessionId) { roomId, roomError ->
+                        if (roomId != null) {
+                            FuelClient.getFrequencBySessionIDAndRoomId(sessionId, roomId) { frequency, freqError ->
+                                if (frequency != null) {
+                                    frequencyToMatch = frequency
+                                } else {
+                                    Log.e("FrequencyScreen", "Frequency Error: $freqError")
+                                }
+                            }
+                        } else {
+                            Log.e("FrequencyScreen", "Room Error: $roomError")
+                        }
+                    }
+                } else {
+                    Log.e("FrequencyScreen", "Session ID not found in SharedPreferences")
+                }
+                delay(2000L) // Fetch every 2 seconds
+            }
         }
     }
 
@@ -213,9 +221,11 @@ fun FrequencyScreen(
                 Spacer(modifier = Modifier.weight(3f))
             }
             ScanFrequency(
+                //get the frequency to match here
                 viewModel = viewModel,
                 modifier = Modifier.padding(top = 100.dp),
-                locked = isLocked
+                locked = isLocked,
+                freqencyToMatch = frequencyToMatch
             )
             Box(
                 modifier = Modifier.padding(top = 70.dp),
@@ -261,10 +271,11 @@ fun FrequencyScreen(
                 color = textLight,
                 textAlign = TextAlign.Center
             )
-            Button(onClick = {soundManager.playSoundById("abc")}) { Text("Play Sound") }
+            Button(onClick = { soundManager.playSoundById("abc") }) { Text("Play Sound") }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

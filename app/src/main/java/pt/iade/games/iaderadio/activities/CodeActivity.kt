@@ -34,7 +34,7 @@ import com.example.compose.AppTheme
 import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
-import pt.iade.games.iaderadio.ui.components.shared.InputField
+import pt.iade.games.iaderadio.ui.components.code.InputField
 
 class CodeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -107,9 +107,10 @@ fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
                     textState = newValue.copy(text = newValue.text.uppercase())
                 }
             },
-            onSubmit = { inputText ->
-                Log.d("CodeScreen", "Submitted text: $inputText")
-                onSubmit(inputText)
+            onSubmit = { inputText, isValid ->
+                val submittedText = inputText
+                onSubmit(submittedText)
+                Log.d("InputField", "Submitted text: $submittedText, isValid: $isValid")
             },
             modifier = Modifier
                 .width(200.dp)

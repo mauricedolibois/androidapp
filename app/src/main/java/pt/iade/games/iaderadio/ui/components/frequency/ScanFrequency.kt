@@ -19,6 +19,7 @@ import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
 @Composable
 fun ScanFrequency(
     viewModel: ScanFrequencyViewModel,
+    freqencyToMatch: String, //compare this to the frequency in the viewModel
     modifier: Modifier = Modifier,
     locked: Boolean = false
 ) {
@@ -51,6 +52,7 @@ fun ScanFrequency(
         }
     }
 }
+
 
 
 @Preview(showBackground = true)

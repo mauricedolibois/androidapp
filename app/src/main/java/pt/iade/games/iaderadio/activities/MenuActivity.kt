@@ -1,5 +1,6 @@
 package pt.iade.games.iaderadio.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -52,8 +53,10 @@ class MenuActivity : ComponentActivity() {
 }
 
 @Composable
-fun MenuScreen(modifier: Modifier = Modifier, code: String, room: String = "A1", enemyCount: Int = 3) {
+fun MenuScreen(modifier: Modifier = Modifier, code: String) {
     val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+    val room = sharedPref.getString("roomId", null) // Default value is null if not found
     AppTheme {
         Column(
             modifier = modifier
@@ -100,12 +103,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String, room: String = "A1",
             Text(
                 text = "Current Room: $room",
                 color = textLight,
-                modifier = Modifier.padding(top = 50.dp)
-            )
-            Text(
-                text = "Enemy Communications Detected: $enemyCount",
-                color = textLight,
-                modifier = Modifier.padding(bottom = 30.dp)
+                modifier = Modifier.padding(vertical = 50.dp)
             )
             MenuButton("Notes",modifier = Modifier.height(70.dp).width(200.dp),color = textLight, onClick = {
                 val intent = Intent(context, NotesActivity::class.java)

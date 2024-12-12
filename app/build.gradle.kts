@@ -50,6 +50,10 @@ android {
 }
 
 dependencies {
+    implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel-gson:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel-android:2.3.1") //Android
+    implementation("com.google.code.gson:gson:2.10.1") //Gson
     implementation("androidx.appcompat:appcompat:1.3.1")
     implementation("net.java.dev.jna:jna:5.13.0@aar")
     implementation("com.alphacephei:vosk-android:0.3.47@aar")
