@@ -169,7 +169,6 @@ fun FrequencyScreen(
                 val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
-                if (sessionId != -1) {
                     FuelClient.getCurrentRoomIDbySessionID(context, sessionId) { roomId, roomError ->
                         if (roomId != null) {
                             FuelClient.getFrequencBySessionIDAndRoomId(sessionId, roomId) { frequency, freqError ->
@@ -178,7 +177,6 @@ fun FrequencyScreen(
                                     if (abs(frequencyState.value - frequencyToMatch.toDouble()) <15)
                                     {
                                         soundManager.playSoundById(roomId)
-//                                        FuelClient.postInput()
                                     }
                                 } else {
                                     Log.e("FrequencyScreen", "Frequency Error: $freqError")
@@ -188,9 +186,6 @@ fun FrequencyScreen(
                             Log.e("FrequencyScreen", "Room Error: $roomError")
                         }
                     }
-                } else {
-                    Log.e("FrequencyScreen", "Session ID not found in SharedPreferences")
-                }
                 delay(2000L) // Fetch every 2 seconds
             }
         }
