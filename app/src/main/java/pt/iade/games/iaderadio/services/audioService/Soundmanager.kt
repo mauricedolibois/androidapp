@@ -50,6 +50,7 @@ class SoundManager(private val context: Context) {
             currentSoundId = soundId
             setupVisualizer()
         } catch (e: Exception) {
+            playRadioEffect()
             Log.e("SoundManager", "Error loading sound $soundId: ${e.message}")
             e.printStackTrace()
         }

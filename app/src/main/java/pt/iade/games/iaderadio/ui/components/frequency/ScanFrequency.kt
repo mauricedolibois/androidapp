@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DoubleState
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -14,20 +17,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.AppTheme
 import com.example.compose.primaryDark
+import com.github.kittinunf.fuel.Fuel
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
+import pt.iade.games.iaderadio.services.audioService.SoundManager
+import kotlin.math.abs
 
 @Composable
 fun ScanFrequency(
     viewModel: ScanFrequencyViewModel,
-    freqencyToMatch: String, //compare this to the frequency in the viewModel
     modifier: Modifier = Modifier,
-    locked: Boolean = false
+    locked: Boolean = false ,
+    frequencyState: MutableState<Double> // Add this parameter
+
 ) {
     // Lock the frequency in the viewModel
     viewModel.lockFrequency(locked)
 
+
     // Display either the locked frequency or the current frequency from the viewModel
     val frequency = if (locked) viewModel.frequency else viewModel.frequency
+    frequencyState.value = frequency
+
+
+
 
     AppTheme {
         Column(

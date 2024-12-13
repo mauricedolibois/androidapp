@@ -46,6 +46,7 @@ import pt.iade.games.iaderadio.ui.components.frequency.AudioCirlce
 import pt.iade.games.iaderadio.ui.components.frequency.AudioLine
 import pt.iade.games.iaderadio.ui.components.frequency.ScanFrequency
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
+import kotlin.math.abs
 
 class FrequencyActivity : ComponentActivity() {
 
@@ -148,6 +149,7 @@ fun FrequencyScreen(
     var soundFactor by remember { mutableFloatStateOf(0f) }
     var recognizedText by remember { mutableStateOf("Listening...") }
     var frequencyToMatch by remember { mutableStateOf("N/A") }
+    val frequencyState = remember { mutableDoubleStateOf(0.0) } // Shared state for frequency
     val coroutineScope = rememberCoroutineScope()
 
     // Start observing microphone volume
@@ -173,6 +175,11 @@ fun FrequencyScreen(
                             FuelClient.getFrequencBySessionIDAndRoomId(sessionId, roomId) { frequency, freqError ->
                                 if (frequency != null) {
                                     frequencyToMatch = frequency
+                                    if (abs(frequencyState.value - frequencyToMatch.toDouble()) <15)
+                                    {
+                                        soundManager.playSoundById(roomId)
+//                                        FuelClient.postInput()
+                                    }
                                 } else {
                                     Log.e("FrequencyScreen", "Frequency Error: $freqError")
                                 }
@@ -188,6 +195,31 @@ fun FrequencyScreen(
             }
         }
     }
+
+    LaunchedEffect(soundManager) {
+        coroutineScope.launch {
+            while (true) {
+                soundFactor = soundManager.getCurrentAmplitude().toFloat()
+                Log.d("SoundFactor", soundFactor.toString())
+                delay(200L) // Random delay between 200 and 600ms
+            }
+        }
+    }
+
+    // Listen for speech recognition results
+    LaunchedEffect(voskService) {
+        voskService.onResult = { text ->
+            Log.d("VoskService", "Recognized text: $text")
+            if (text.contains("partial") && !text.contains("\"\"")) {
+                // Extract the content between the second pair of double quotes
+                val partialResult = text.substringAfter(": \"").substringBefore("\"")
+                recognizedText = partialResult
+            } }
+        voskService.onError = { error ->
+            recognizedText = "Error: $error"
+        }
+    }
+
 
     AppTheme {
         Column(
@@ -225,7 +257,7 @@ fun FrequencyScreen(
                 viewModel = viewModel,
                 modifier = Modifier.padding(top = 100.dp),
                 locked = isLocked,
-                freqencyToMatch = frequencyToMatch
+                frequencyState = frequencyState
             )
             Box(
                 modifier = Modifier.padding(top = 70.dp),
