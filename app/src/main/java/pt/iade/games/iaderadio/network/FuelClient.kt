@@ -59,6 +59,7 @@ object FuelClient {
                 result.fold(
                     success = { room ->
                         // Store roomId in SharedPreferences
+                        val room = room.trim('"')
                         val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                         with(sharedPref.edit()) {
                             putString("roomId", room)
@@ -92,7 +93,7 @@ object FuelClient {
     }
 
     fun markInputAsDone(sessionId: Int, onResult: (Boolean, String?) -> Unit) {
-        val url = "$BASE_URL/frequency/doInput/$sessionId" // Build the endpoint URL
+        val url = "$BASE_URL/input/doInput/$sessionId" // Build the endpoint URL
 
         Fuel.put(url) // PUT request
             .responseString { _, _, result ->

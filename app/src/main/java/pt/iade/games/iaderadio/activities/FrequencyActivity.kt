@@ -126,9 +126,18 @@ class FrequencyActivity : ComponentActivity() {
 
 
     private fun hasRequiredPermissions(): Boolean {
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+        return ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.RECORD_AUDIO
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun requestPermissions() {
@@ -169,7 +178,6 @@ fun FrequencyScreen(
     var frequencyToMatch by remember { mutableStateOf("N/A") }
     val frequencyState = remember { mutableDoubleStateOf(0.0) } // Shared state for frequency
     val coroutineScope = rememberCoroutineScope()
-    var currentRoomId by remember { mutableStateOf( "N/A")}
 
     // Start observing microphone volume
     LaunchedEffect(audioRecorder) {
@@ -184,14 +192,15 @@ fun FrequencyScreen(
     LaunchedEffect(recognizedText) {
         coroutineScope.launch {
             while (true) {
-                val roomCodeMap = hashMapOf("1A" to "shift change", "2" to "bruno the magic wizard")
-                val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val roomCodeMap = hashMapOf("1B" to "shift change", "1A" to "bruno the fucking magic wizard")
+                val sharedPref =
+                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val currentRoomId = sharedPref.getString("roomId", null)
                 val sessionId = sharedPref.getInt("sessionId", -1)
-
                 for ((roomID, code) in roomCodeMap) {
-                    if(currentRoomId == roomID && recognizedText.contains(code)){
-                        FuelClient.markInputAsDone(sessionId){ isDone, error ->
-                            Log.d("Input", "Input: ${roomID} ${isDone}")
+                    if (currentRoomId == roomID && recognizedText.contains(code)) {
+                        FuelClient.markInputAsDone(sessionId) { isDone, error ->
+                            Log.d("Input", "Input: $roomID $isDone")
                         }
 
                     }
@@ -206,27 +215,29 @@ fun FrequencyScreen(
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             while (true) {
-                val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val sharedPref =
+                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
-                    FuelClient.getCurrentRoomIDbySessionID(context, sessionId) { roomId, roomError ->
-                        if (roomId != null) {
-                            currentRoomId = roomId
-                            FuelClient.getFrequencBySessionIDAndRoomId(sessionId, roomId) { frequency, freqError ->
-                                if (frequency != null) {
-                                    frequencyToMatch = frequency
-                                    if (abs(frequencyState.value - frequencyToMatch.toDouble()) <15)
-                                    {
-                                        soundManager.playSoundById(roomId)
-                                    }
-                                } else {
-                                    Log.e("FrequencyScreen", "Frequency Error: $freqError")
+                FuelClient.getCurrentRoomIDbySessionID(context, sessionId) { roomId, roomError ->
+                    if (roomId != null) {
+                        FuelClient.getFrequencBySessionIDAndRoomId(
+                            sessionId,
+                            roomId
+                        ) { frequency, freqError ->
+                            if (frequency != null) {
+                                frequencyToMatch = frequency
+                                if (abs(frequencyState.value - frequencyToMatch.toDouble()) < 15) {
+                                    soundManager.playSoundById(roomId)
                                 }
+                            } else {
+                                Log.e("FrequencyScreen", "Frequency Error: $freqError")
                             }
-                        } else {
-                            Log.e("FrequencyScreen", "Room Error: $roomError")
                         }
+                    } else {
+                        Log.e("FrequencyScreen", "Room Error: $roomError")
                     }
+                }
                 delay(2000L) // Fetch every 2 seconds
             }
         }
@@ -250,7 +261,8 @@ fun FrequencyScreen(
                 // Extract the content between the second pair of double quotes
                 val partialResult = text.substringAfter(": \"").substringBefore("\"")
                 recognizedText = partialResult
-            } }
+            }
+        }
         voskService.onError = { error ->
             recognizedText = "Error: $error"
         }
@@ -299,7 +311,11 @@ fun FrequencyScreen(
                 modifier = Modifier.padding(top = 70.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                AudioCirlce(scale = 2f, modifier = Modifier.align(Alignment.Center), factor = soundFactor)
+                AudioCirlce(
+                    scale = 2f,
+                    modifier = Modifier.align(Alignment.Center),
+                    factor = soundFactor
+                )
                 LockButton(
                     isLocked = isLocked,
                     onToggleLock = { isLocked = it },
