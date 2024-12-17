@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.*
 import java.lang.Math.toDegrees
 
 class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListener {
@@ -18,6 +19,7 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
 
     private val minFrequency = 30.0
     private val maxFrequency = 120.0
+    private val updateInterval = 200L // 0.2 seconds in milliseconds
 
     var frequency by mutableDoubleStateOf(100.0) // Current frequency
         private set
@@ -25,6 +27,9 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
     private var lockedFrequency: Double? = null // Holds the frequency when locked
     private var gravity: FloatArray? = null
     private var geomagnetic: FloatArray? = null
+
+    private var rollDirection: Int = 0 // 1 for right, -1 for left, 0 for straight
+    private var updateJob: Job? = null // Coroutine job for frequency updates
 
     init {
         accelerometer?.let {
@@ -38,6 +43,7 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
     fun lockFrequency(locked: Boolean) {
         if (locked) {
             lockedFrequency = frequency
+            stopFrequencyUpdate()
         } else {
             lockedFrequency = null
         }
@@ -57,13 +63,47 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
                     val orientation = FloatArray(3)
                     SensorManager.getOrientation(R, orientation)
 
-                    var rotationAngle = toDegrees(orientation[0].toDouble()).toFloat()
-                    if (rotationAngle < 0) rotationAngle += 360  // Normalize to [0, 360)
+                    // Get roll angle in degrees (-90 to 90 for left/right tilt)
+                    val rollAngle = toDegrees(orientation[2].toDouble()).toFloat()
 
-                    val normalizedAngle = rotationAngle / 360  // Normalize to [0, 1]
-                    frequency = minFrequency + normalizedAngle * (maxFrequency - minFrequency)
+                    // Determine tilt direction
+                    rollDirection = when {
+                        rollAngle > 45 -> 1   // Tilted to the right
+                        rollAngle < -45 -> -1 // Tilted to the left
+                        else -> 0            // Straight position
+                    }
+
+                    if (rollDirection != 0) {
+                        startFrequencyUpdate()
+                    } else {
+                        stopFrequencyUpdate()
+                    }
                 }
             }
+        }
+    }
+
+    private fun startFrequencyUpdate() {
+        if (updateJob == null || !updateJob!!.isActive) {
+            updateJob = CoroutineScope(Dispatchers.Default).launch {
+                while (true) {
+                    delay(updateInterval)
+                    updateFrequency()
+                }
+            }
+        }
+    }
+
+    private fun stopFrequencyUpdate() {
+        updateJob?.cancel()
+        updateJob = null
+    }
+
+    private fun updateFrequency() {
+        if (rollDirection > 0 && frequency < maxFrequency) {
+            frequency += 1.0
+        } else if (rollDirection < 0 && frequency > minFrequency) {
+            frequency -= 1.0
         }
     }
 
@@ -73,7 +113,7 @@ class ScanFrequencyViewModel(context: Context) : ViewModel(), SensorEventListene
 
     override fun onCleared() {
         super.onCleared()
+        stopFrequencyUpdate()
         sensorManager.unregisterListener(this)
     }
 }
-
