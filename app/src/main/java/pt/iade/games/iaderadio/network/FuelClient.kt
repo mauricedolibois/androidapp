@@ -91,4 +91,24 @@ object FuelClient {
 
     }
 
+    fun markInputAsDone(sessionId: Int, onResult: (Boolean, String?) -> Unit) {
+        val url = "$BASE_URL/frequency/doInput/$sessionId" // Build the endpoint URL
+
+        Fuel.put(url) // PUT request
+            .responseString { _, _, result ->
+                result.fold(
+                    success = { response ->
+                        // If successful, notify with true
+                        Log.d("FuelClient", "Input marked as done: $response")
+                        onResult(true, null)
+                    },
+                    failure = { error ->
+                        // On failure, log and notify with error message
+                        Log.e("FuelClient", "Error marking input as done: ${error.message}")
+                        onResult(false, error.message)
+                    }
+                )
+            }
+    }
+
 }
