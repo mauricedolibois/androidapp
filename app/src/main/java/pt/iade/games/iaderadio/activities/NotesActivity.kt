@@ -60,7 +60,6 @@ class NotesActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun NotesScreen(modifier: Modifier = Modifier, code: String) {
     val context = LocalContext.current
