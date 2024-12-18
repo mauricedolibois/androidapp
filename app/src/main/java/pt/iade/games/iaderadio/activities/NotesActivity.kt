@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -109,18 +110,18 @@ fun NotesScreen(modifier: Modifier = Modifier, code: String) {
             )
 
 
-                OutlinedTextField(
-                    value = noteText.value,
-                    onValueChange = {
-                        noteText.value = it
-                        saveNotes(it.text)  // Save notes whenever the text changes
-                    },
-                    label = { Text("Write notes") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .verticalScroll(scrollState)
-                        .background(surfaceContainerDark),
-                )
+            OutlinedTextField(
+                value = noteText.value,
+                onValueChange = {
+                    noteText.value = it
+                    saveNotes(it.text) // Save notes whenever the text changes
+                },
+                label = { Text("Write notes") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight() // Make it stretch to the full height
+                    .background(surfaceContainerDark)
+            )
 
             }
 
