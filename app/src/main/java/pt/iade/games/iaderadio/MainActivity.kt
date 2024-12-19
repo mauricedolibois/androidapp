@@ -34,7 +34,7 @@ fun startApp(context: Context) {
             FuelClient.getSessionByCode(context,gameCode) { session, error ->
                 if (session != null) {
                     Log.d("MainActivity", "Session: $session")
-                    FuelClient.getCurrentRoomIDbySessionID(context,session.toInt()) { room, error ->
+                    FuelClient.getCurrentRoombySessionID(context,session.toInt()) { room, error ->
                         if (room != null) {
                             Log.d("MainActivity", "Room: $room")
                         } else {

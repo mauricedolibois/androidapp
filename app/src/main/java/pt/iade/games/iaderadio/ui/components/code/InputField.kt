@@ -105,7 +105,7 @@ private fun validateSession(context:Context,code: String, onResult: (Boolean) ->
     FuelClient.getSessionByCode(context, code) { session, error ->
         if (session != null) {
             Log.d("InputField", "Session: $session")
-            FuelClient.getCurrentRoomIDbySessionID(context, session.toInt()) { room, error ->
+            FuelClient.getCurrentRoombySessionID(context, session.toInt()) { room, error ->
                 if (room != null) {
                     Log.d("InputField", "Room: $room")
                     onResult(true)

@@ -12,7 +12,8 @@ import pt.iade.games.iaderadio.services.fileService.Files
 object FuelClient {
 
     // Base URL for the Node.js server
-    private const val BASE_URL = "https://operationsilentchaos.vercel.app"
+      //private const val BASE_URL = "http://10.0.2.2:3000"
+        private const val BASE_URL = "https://operationsilentchaos.vercel.app"
 
     // Function to fetch rooms from the server
     fun getRooms(onResult: (List<Room>?, String?) -> Unit) {
@@ -53,16 +54,16 @@ object FuelClient {
         }
     }
 
-    fun getCurrentRoomIDbySessionID(context: Context, sessionID: Int, onResult: (String?, String?) -> Unit) {
+    fun getCurrentRoombySessionID(context: Context, sessionID: Int, onResult: (Room?, String?) -> Unit) {
         Fuel.get("$BASE_URL/room/getCurrentRoom/$sessionID")
-            .responseString { _, _, result ->
+            .responseObject<Room> { _, _, result ->
                 result.fold(
                     success = { room ->
                         // Store roomId in SharedPreferences
-                        val room = room.trim('"')
                         val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                         with(sharedPref.edit()) {
-                            putString("roomId", room)
+                            putString("roomName", room.roomName)
+                            putInt("roomId", room.roomId)
                             apply()
                         }
                         onResult(room, null)

@@ -178,6 +178,8 @@ fun FrequencyScreen(
     var frequencyToMatch by remember { mutableStateOf("N/A") }
     val frequencyState = remember { mutableDoubleStateOf(0.0) } // Shared state for frequency
     val coroutineScope = rememberCoroutineScope()
+    val currentRoom = remember { mutableStateOf("") }
+
 
     // Start observing microphone volume
     LaunchedEffect(audioRecorder) {
@@ -192,10 +194,10 @@ fun FrequencyScreen(
     LaunchedEffect(recognizedText) {
         coroutineScope.launch {
             while (true) {
-                val roomCodeMap = hashMapOf("1B" to "shift change", "Outside Area" to "magic wizard")
+                val roomCodeMap = hashMapOf("???" to "shift change", "Outside Area" to " the magic wizard")
                 val sharedPref =
                     context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
-                val currentRoomId = sharedPref.getString("roomId", null)
+                val currentRoomId = sharedPref.getString("roomName", null)
                 val sessionId = sharedPref.getInt("sessionId", -1)
                 for ((roomID, code) in roomCodeMap) {
                     if (currentRoomId == roomID && recognizedText.contains(code)) {
@@ -219,16 +221,17 @@ fun FrequencyScreen(
                     context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
-                FuelClient.getCurrentRoomIDbySessionID(context, sessionId) { roomId, roomError ->
-                    if (roomId != null) {
+                FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
+                    if (room?.roomId != 0) {
+                        currentRoom.value = room?.roomName.toString()
                         FuelClient.getFrequencBySessionIDAndRoomId(
                             sessionId,
-                            roomId
+                            room?.roomId.toString()
                         ) { frequency, freqError ->
                             if (frequency != null) {
                                 frequencyToMatch = frequency
                                 if (abs(frequencyState.value - frequencyToMatch.toDouble()) < 15) {
-                                    soundManager.playSoundById(roomId)
+                                    soundManager.playSoundById(room?.roomName.toString())
                                 }
                             } else {
                                 Log.e("FrequencyScreen", "Frequency Error: $freqError")
@@ -300,10 +303,14 @@ fun FrequencyScreen(
                 )
                 Spacer(modifier = Modifier.weight(3f))
             }
+            Text(
+                text = "Current Room: ${currentRoom.value}",
+                color = textLight,
+                modifier = Modifier.padding(vertical = 30.dp)
+            )
             ScanFrequency(
                 //get the frequency to match here
                 viewModel = viewModel,
-                modifier = Modifier.padding(top = 100.dp),
                 locked = isLocked,
                 frequencyState = frequencyState
             )
@@ -355,7 +362,6 @@ fun FrequencyScreen(
                 color = textLight,
                 textAlign = TextAlign.Center
             )
-            Button(onClick = { soundManager.playSoundById("abc") }) { Text("Play Sound") }
         }
     }
 }

@@ -3,6 +3,7 @@ package pt.iade.games.iaderadio.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -19,7 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Logout
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -28,11 +33,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.AppTheme
 import com.example.compose.textLight
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import pt.iade.games.iaderadio.R
+import pt.iade.games.iaderadio.network.FuelClient
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
 import pt.iade.games.iaderadio.ui.components.menu.MenuButton
+import kotlin.math.abs
 
 class MenuActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,8 +65,24 @@ class MenuActivity : ComponentActivity() {
 @Composable
 fun MenuScreen(modifier: Modifier = Modifier, code: String) {
     val context = LocalContext.current
-    val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
-    val room = sharedPref.getString("roomId", null) // Default value is null if not found
+    val currentRoom = remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            while (true) {
+                val sharedPref =
+                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val sessionId = sharedPref.getInt("sessionId", -1)
+
+                FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
+                    currentRoom.value = room?.roomName.toString()
+                    Log.d("MenuActivity", "Room: $room")
+                }
+                delay(2000L) // Fetch every 2 seconds
+            }
+        }
+    }
     AppTheme {
         Column(
             modifier = modifier
@@ -101,7 +127,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                 context.startActivity(intent)
             }, fontSize = 30)
             Text(
-                text = "Current Room: $room",
+                text = "Current Room: ${currentRoom.value}",
                 color = textLight,
                 modifier = Modifier.padding(vertical = 50.dp)
             )
