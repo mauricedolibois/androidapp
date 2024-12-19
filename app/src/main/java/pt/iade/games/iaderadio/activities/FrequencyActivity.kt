@@ -51,6 +51,7 @@ import com.example.compose.textLight
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import pt.iade.games.iaderadio.MainActivity
+import pt.iade.games.iaderadio.models.Room
 import pt.iade.games.iaderadio.models.ScanFrequencyViewModel
 import pt.iade.games.iaderadio.network.FuelClient
 import pt.iade.games.iaderadio.services.audioService.AudioRecorder
@@ -63,6 +64,7 @@ import pt.iade.games.iaderadio.ui.components.frequency.AudioCirlce
 import pt.iade.games.iaderadio.ui.components.frequency.AudioLine
 import pt.iade.games.iaderadio.ui.components.frequency.ScanFrequency
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
+import kotlin.String
 import kotlin.math.abs
 
 
@@ -178,8 +180,7 @@ fun FrequencyScreen(
     var frequencyToMatch by remember { mutableStateOf("N/A") }
     val frequencyState = remember { mutableDoubleStateOf(0.0) } // Shared state for frequency
     val coroutineScope = rememberCoroutineScope()
-    val currentRoom = remember { mutableStateOf("") }
-
+    var currentRoom = remember { mutableStateOf<Room?>(null) }
 
     // Start observing microphone volume
     LaunchedEffect(audioRecorder) {
@@ -194,10 +195,10 @@ fun FrequencyScreen(
     LaunchedEffect(recognizedText) {
         coroutineScope.launch {
             while (true) {
-                val roomCodeMap = hashMapOf("???" to "shift change", "Outside Area" to " the magic wizard")
+                val roomCodeMap = hashMapOf("Outside Area" to "shift change", "Prison" to " bob the magic wizard")
                 val sharedPref =
                     context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
-                val currentRoomId = sharedPref.getString("roomName", null)
+                val currentRoomId = currentRoom.value?.roomId.toString()
                 val sessionId = sharedPref.getInt("sessionId", -1)
                 for ((roomID, code) in roomCodeMap) {
                     if (currentRoomId == roomID && recognizedText.contains(code)) {
@@ -223,7 +224,7 @@ fun FrequencyScreen(
 
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
                     if (room?.roomId != 0) {
-                        currentRoom.value = room?.roomName.toString()
+                        currentRoom.value = room
                         FuelClient.getFrequencBySessionIDAndRoomId(
                             sessionId,
                             room?.roomId.toString()
@@ -304,7 +305,7 @@ fun FrequencyScreen(
                 Spacer(modifier = Modifier.weight(3f))
             }
             Text(
-                text = "Current Room: ${currentRoom.value}",
+                text = "Current Room: ${currentRoom.value?.roomName}",
                 color = textLight,
                 modifier = Modifier.padding(vertical = 30.dp)
             )
@@ -365,6 +366,7 @@ fun FrequencyScreen(
         }
     }
 }
+
 
 
 @Preview(showBackground = true)
