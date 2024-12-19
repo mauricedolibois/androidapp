@@ -192,7 +192,7 @@ fun FrequencyScreen(
     LaunchedEffect(recognizedText) {
         coroutineScope.launch {
             while (true) {
-                val roomCodeMap = hashMapOf("1B" to "shift change", "1A" to "bruno the fucking magic wizard")
+                val roomCodeMap = hashMapOf("1B" to "shift change", "Outside Area" to "magic wizard")
                 val sharedPref =
                     context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val currentRoomId = sharedPref.getString("roomId", null)
