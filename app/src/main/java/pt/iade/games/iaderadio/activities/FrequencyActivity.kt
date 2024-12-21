@@ -172,7 +172,7 @@ fun FrequencyScreen(
     voskService: VoskService
 ) {
     val context = LocalContext.current
-    val viewModel = ScanFrequencyViewModel(context)
+    val viewModel = remember { ScanFrequencyViewModel(context) }
     var isLocked by remember { mutableStateOf(false) }
     var waveHeight by remember { mutableFloatStateOf(40f) } // Initial wave height
     var soundFactor by remember { mutableFloatStateOf(0f) }
@@ -192,47 +192,35 @@ fun FrequencyScreen(
         }
     }
 
-    LaunchedEffect(recognizedText) {
-        coroutineScope.launch {
-            while (true) {
-                val roomCodeMap = hashMapOf("Outside Area" to "shift change", "Prison" to " bob the magic wizard")
-                val sharedPref =
-                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
-                val currentRoomId = currentRoom.value?.roomId.toString()
-                val sessionId = sharedPref.getInt("sessionId", -1)
-                for ((roomID, code) in roomCodeMap) {
-                    if (currentRoomId == roomID && recognizedText.contains(code)) {
-                        FuelClient.markInputAsDone(sessionId) { isDone, error ->
-                            Log.d("Input", "Input: $roomID $isDone")
-                        }
-
-                    }
-                }
-
-                delay(100L) // Refresh every 100ms
-            }
-        }
-    }
-
-    // Fetch current room and frequency every 2 seconds
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             while (true) {
-                val sharedPref =
-                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
-                    if (room?.roomId != 0) {
+                    if (room?.roomId != 0 && room?.roomName != null) {
                         currentRoom.value = room
                         FuelClient.getFrequencBySessionIDAndRoomId(
                             sessionId,
-                            room?.roomId.toString()
+                            room.roomId.toString()
                         ) { frequency, freqError ->
                             if (frequency != null) {
                                 frequencyToMatch = frequency
-                                if (abs(frequencyState.value - frequencyToMatch.toDouble()) < 15) {
-                                    soundManager.playSoundById(room?.roomName.toString())
+                                // Update frequencyState only if it significantly differs
+                                if (abs(frequencyState.value - frequencyToMatch.toDouble()) <= 2) {
+                                    val roomCodeMap = hashMapOf("Outside Area" to "shift change", "Prison" to "bob the magic wizard")
+                                    val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                                    val currentRoomName = currentRoom.value?.roomName.toString()
+                                    val sessionId = sharedPref.getInt("sessionId", -1)
+                                    for ((roomName, code) in roomCodeMap) {
+                                        if (currentRoomName == roomName && recognizedText.contains(code)) {
+                                            FuelClient.markInputAsDone(sessionId) { isDone, error ->
+                                                Log.d("Input", "Input: $roomName $isDone")
+                                            }
+                                        }
+                                    }
+                                    soundManager.playSoundById(room.roomName.toString())
                                 }
                             } else {
                                 Log.e("FrequencyScreen", "Frequency Error: $freqError")

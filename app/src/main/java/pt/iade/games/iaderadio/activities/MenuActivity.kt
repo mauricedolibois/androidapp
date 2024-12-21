@@ -76,6 +76,7 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
+                    if (room?.roomName != null)
                     currentRoom.value = room?.roomName.toString()
                     Log.d("MenuActivity", "Room: $room")
                 }
