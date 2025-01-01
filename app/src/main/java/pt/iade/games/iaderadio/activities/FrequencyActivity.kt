@@ -65,7 +65,9 @@ import pt.iade.games.iaderadio.ui.components.frequency.AudioLine
 import pt.iade.games.iaderadio.ui.components.frequency.ScanFrequency
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
 import kotlin.String
+import kotlin.compareTo
 import kotlin.math.abs
+import kotlin.toString
 
 
 class FrequencyActivity : ComponentActivity() {
@@ -195,7 +197,8 @@ fun FrequencyScreen(
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             while (true) {
-                val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                val sharedPref =
+                    context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
@@ -209,12 +212,16 @@ fun FrequencyScreen(
                                 frequencyToMatch = frequency
                                 // Update frequencyState only if it significantly differs
                                 if (abs(frequencyState.value - frequencyToMatch.toDouble()) <= 2) {
-                                    val roomCodeMap = hashMapOf("Outside Area" to "shift change", "Prison" to "bob the magic wizard")
-                                    val sharedPref = context.getSharedPreferences("MyAppPreferences", Context.MODE_PRIVATE)
+                                    val roomCodeMap = hashMapOf(
+                                        "Outside Area" to "shift change",
+                                        "Prison" to "bob the magic wizard"
+                                    )
                                     val currentRoomName = currentRoom.value?.roomName.toString()
-                                    val sessionId = sharedPref.getInt("sessionId", -1)
                                     for ((roomName, code) in roomCodeMap) {
-                                        if (currentRoomName == roomName && recognizedText.contains(code)) {
+                                        if (currentRoomName == roomName && recognizedText.contains(
+                                                code
+                                            )
+                                        ) {
                                             FuelClient.markInputAsDone(sessionId) { isDone, error ->
                                                 Log.d("Input", "Input: $roomName $isDone")
                                             }
@@ -235,7 +242,7 @@ fun FrequencyScreen(
         }
     }
 
-    LaunchedEffect(soundManager) {
+        LaunchedEffect(soundManager) {
         coroutineScope.launch {
             while (true) {
                 soundFactor = soundManager.getCurrentAmplitude().toFloat()

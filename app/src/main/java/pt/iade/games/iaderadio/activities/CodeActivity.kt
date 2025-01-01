@@ -9,11 +9,15 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +39,7 @@ import pt.iade.games.iaderadio.R
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
 import pt.iade.games.iaderadio.ui.components.code.InputField
+import pt.iade.games.iaderadio.ui.components.shared.IconButton
 
 class CodeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,7 +90,6 @@ fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
                 .height(150.dp)
         )
 
-
         Text(
             text = "Connect Companion App:",
             fontSize = 23.sp,
@@ -98,24 +102,35 @@ fun CodeScreen(modifier: Modifier = Modifier, onSubmit: (String) -> Unit) {
         )
 
         var textState by remember { mutableStateOf(TextFieldValue("")) }
+        var isValid by remember { mutableStateOf(false) } // Track validity state
 
-        InputField(
-            placeholder = "ENTER GAME CODE",
-            value = textState,
-            onValueChange = { newValue ->
-                if (newValue.text.matches(Regex("^[a-zA-Z\\d]*$")) && newValue.text.length <= 5) { // filtering letters and numbers, max 5 characters
-                    textState = newValue.copy(text = newValue.text.uppercase())
-                }
-            },
-            onSubmit = { inputText, isValid ->
-                val submittedText = inputText
-                onSubmit(submittedText)
-                Log.d("InputField", "Submitted text: $submittedText, isValid: $isValid")
-            },
+        Row(
             modifier = Modifier
-                .width(200.dp)
-                .align(Alignment.CenterHorizontally)
-        )
+                .fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            InputField(
+                placeholder = "ENTER GAME CODE",
+                value = textState,
+                onValueChange = { newValue ->
+                    if (newValue.text.matches(Regex("^[a-zA-Z\\d]*$")) && newValue.text.length <= 5) {
+                        textState = newValue.copy(text = newValue.text.uppercase())
+                        isValid = newValue.text.isNotEmpty()
+                    } else {
+                        isValid = false
+                    }
+                },
+                onSubmit = { inputText, fieldIsValid ->
+                    if (fieldIsValid) {
+                        onSubmit(inputText)
+                        Log.d("InputField", "Submitted text: $inputText, isValid: $fieldIsValid")
+                    }
+                },
+                modifier = Modifier
+            )
+
+        }
     }
 }
 

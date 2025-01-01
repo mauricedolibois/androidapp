@@ -7,17 +7,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.computeHorizontalBounds
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.compose.AppTheme
+import pt.iade.games.iaderadio.ui.components.shared.IconButton
 import com.example.compose.tertiaryContainerLightMediumContrast
 import pt.iade.games.iaderadio.network.FuelClient
 
@@ -33,43 +38,70 @@ fun InputField(
     var isSessionValid by remember { mutableStateOf(false) }
     var isLoading by remember { mutableStateOf(false) }
     val context = LocalContext.current
+
     AppTheme {
-        Column(modifier = modifier) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = {
-                    onValueChange(it)
-                    isError = isError && it.text.length == 5
-                },
-                placeholder = {
-                    if (value.text.isEmpty()) {
-                        Text(text = placeholder)
-                    } else {
-                        Text(text = value.text)
-                    }
-                },
-                shape = RoundedCornerShape(50.dp),
-                modifier = Modifier
+        Column {
+            Row(
+                modifier = modifier
                     .fillMaxWidth()
-                    .background(
-                        tertiaryContainerLightMediumContrast,
-                        shape = RoundedCornerShape(50.dp)
+            ) {
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = {
+                        onValueChange(it)
+                        isError = isError && it.text.length == 5
+                    },
+                    placeholder = {
+                        if (value.text.isEmpty()) {
+                            Text(text = placeholder)
+                        } else {
+                            Text(text = value.text)
+                        }
+                    },
+                    shape = RoundedCornerShape(50.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .width(200.dp)
+                        .padding(start = 8.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        imeAction = ImeAction.Done
                     ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (value.text.length == 5) {
+                                isLoading = true // Show loading state
+                                validateSession(context, value.text) { isValid ->
+                                    isLoading = false // Hide loading state
+                                    isSessionValid = isValid
+                                    if (isValid) {
+                                        onSubmit(value.text, true)
+                                        onValueChange(TextFieldValue("")) // Clear the input field
+                                        isError = false
+                                    } else {
+                                        isError = true
+                                    }
+                                }
+                            } else {
+                                isError = true
+                            }
+                        }
+                    ),
+                    isError = isError
+                )
+
+                IconButton(
+                    icon = Icons.Default.Check,
+                    contentDescription = "Submit",
+                    onClick = {
                         if (value.text.length == 5) {
-                            isLoading = true // Show loading state
-                            validateSession(context,value.text) { isValid ->
-                                isLoading = false // Hide loading state
+                            isLoading = true
+                            validateSession(context, value.text) { isValid ->
+                                isLoading = false
                                 isSessionValid = isValid
                                 if (isValid) {
                                     onSubmit(value.text, true)
-                                    onValueChange(TextFieldValue("") // Clear the input field
-                                    )
+                                    onValueChange(TextFieldValue("")) // Clear the input field
                                     isError = false
                                 } else {
                                     isError = true
@@ -78,27 +110,29 @@ fun InputField(
                         } else {
                             isError = true
                         }
-                    }
-                ),
-                isError = isError
-            )
+                    },
+                    modifier = Modifier.padding(start = 8.dp, end = 8.dp)
+                )
+            }
+
             if (isError) {
                 Text(
                     text = if (isSessionValid) "Code must be 5 characters long" else "Invalid session code",
                     color = Color.Red,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp, start =8.dp)
                 )
             }
             if (isLoading) {
                 Text(
                     text = "Validating...",
                     color = Color.Gray,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp, start = 8.dp)
                 )
             }
         }
     }
 }
+
 
 
 private fun validateSession(context:Context,code: String, onResult: (Boolean) -> Unit) {
