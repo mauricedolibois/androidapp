@@ -78,7 +78,6 @@ fun MenuScreen(modifier: Modifier = Modifier, code: String) {
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
                     if (room?.roomName != null)
                     currentRoom.value = room?.roomName.toString()
-                    Log.d("MenuActivity", "Room: $room")
                 }
                 delay(2000L) // Fetch every 2 seconds
             }

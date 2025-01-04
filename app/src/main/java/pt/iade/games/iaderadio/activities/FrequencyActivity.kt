@@ -208,10 +208,11 @@ fun FrequencyScreen(
                             sessionId,
                             room.roomId.toString()
                         ) { frequency, freqError ->
+
                             if (frequency != null) {
                                 frequencyToMatch = frequency
-                                // Update frequencyState only if it significantly differs
                                 if (abs(frequencyState.value - frequencyToMatch.toDouble()) <= 2) {
+                                    //compare codewords
                                     val roomCodeMap = hashMapOf(
                                         "Outside Area" to "shift change",
                                         "Prison" to "bob the magic wizard"
@@ -222,12 +223,21 @@ fun FrequencyScreen(
                                                 code
                                             )
                                         ) {
+                                            if (currentRoomName == "Prison") {
+                                                soundManager.playSoundById("prison_opened")
+                                            } else if (currentRoomName == "Outside Area") {
+                                                soundManager.playSoundById("shift_changed")
+                                            }
+
+                                            // Mark input as done if the code is correct
                                             FuelClient.markInputAsDone(sessionId) { isDone, error ->
                                                 Log.d("Input", "Input: $roomName $isDone")
                                             }
                                         }
                                     }
+                                    //play sound when frequency matches
                                     soundManager.playSoundById(room.roomName.toString())
+
                                 }
                             } else {
                                 Log.e("FrequencyScreen", "Frequency Error: $freqError")
@@ -246,7 +256,6 @@ fun FrequencyScreen(
         coroutineScope.launch {
             while (true) {
                 soundFactor = soundManager.getCurrentAmplitude().toFloat()
-                Log.d("SoundFactor", soundFactor.toString())
                 delay(200L) // Random delay between 200 and 600ms
             }
         }
@@ -255,7 +264,6 @@ fun FrequencyScreen(
     // Listen for speech recognition results
     LaunchedEffect(voskService) {
         voskService.onResult = { text ->
-            Log.d("VoskService", "Recognized text: $text")
             if (text.contains("partial") && !text.contains("\"\"")) {
                 // Extract the content between the second pair of double quotes
                 val partialResult = text.substringAfter(": \"").substringBefore("\"")

@@ -12,8 +12,8 @@ import pt.iade.games.iaderadio.services.fileService.Files
 object FuelClient {
 
     // Base URL for the Node.js server
-        //private const val BASE_URL = "http://10.0.2.2:3000"
-        private const val BASE_URL = "https://operationsilentchaos.vercel.app"
+        private const val BASE_URL = "http://10.0.2.2:3000"
+        //private const val BASE_URL = "https://operationsilentchaos.vercel.app"
 
     // Function to fetch rooms from the server
     fun getRooms(onResult: (List<Room>?, String?) -> Unit) {

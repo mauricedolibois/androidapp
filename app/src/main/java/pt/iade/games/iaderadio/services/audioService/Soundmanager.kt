@@ -4,8 +4,10 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.util.Log
+import androidx.compose.ui.text.toLowerCase
 import kotlin.math.sqrt
 import pt.iade.games.iaderadio.R
+import java.util.Locale
 
 class SoundManager(private val context: Context) {
 
@@ -14,44 +16,50 @@ class SoundManager(private val context: Context) {
     private var isRadioEffectPlaying: Boolean = false
     private var visualizer: Visualizer? = null
     private var currentAmplitude: Int = 0
+    private var lastSoundPlayed: String? = null
 
     private val radioEffectFile = context.resources.openRawResourceFd(R.raw.radioeffect)
 
-    // Play a sound by ID
+    // Play a sound by RoomName
     fun playSoundById(soundId: String) {
-        if (currentSoundId == soundId) {
-            Log.d("SoundManager", "Sound $soundId is already playing.")
+        val normalizedSoundId = soundId.toLowerCase(Locale.ROOT).replace(" ", "_")
+
+        // Check if the requested sound is already playing
+        if (currentSoundId == normalizedSoundId || lastSoundPlayed == normalizedSoundId || (lastSoundPlayed=="shift_changed" && normalizedSoundId=="outside_area")||(lastSoundPlayed=="prison_opened" && normalizedSoundId=="prison")) {
+            Log.d("SoundManager", "Sound $normalizedSoundId is already playing.")
             return
         }
 
         stopCurrentSound()
 
-        val soundResId = context.resources.getIdentifier(soundId, "raw", context.packageName)
+        val soundResId = context.resources.getIdentifier(normalizedSoundId, "raw", context.packageName)
 
         if (soundResId == 0) {
-            Log.e("SoundManager", "Sound resource $soundId not found.")
+            Log.e("SoundManager", "Sound resource $normalizedSoundId not found.")
             return
         }
 
         try {
             mediaPlayer = MediaPlayer.create(context, soundResId).apply {
                 setOnCompletionListener {
-                    Log.d("SoundManager", "Sound $soundId completed. Resuming radio effect.")
+                    Log.d("SoundManager", "Sound $normalizedSoundId completed. Resuming radio effect.")
                     currentSoundId = null
                     playRadioEffect() // Resume the radio effect after sound finishes
                 }
                 setOnErrorListener { _, what, extra ->
-                    Log.e("SoundManager", "Error playing sound $soundId: what=$what, extra=$extra")
+                    Log.e("SoundManager", "Error playing sound $normalizedSoundId: what=$what, extra=$extra")
                     releaseResources()
                     true
                 }
                 start()
             }
-            currentSoundId = soundId
+
+            lastSoundPlayed = normalizedSoundId
+            currentSoundId = normalizedSoundId
             setupVisualizer()
         } catch (e: Exception) {
             playRadioEffect()
-            Log.e("SoundManager", "Error loading sound $soundId: ${e.message}")
+            Log.e("SoundManager", "Error loading sound $normalizedSoundId: ${e.message}")
             e.printStackTrace()
         }
     }
@@ -137,7 +145,7 @@ class SoundManager(private val context: Context) {
 
     // Get the current real-time amplitude of the audio source
     fun getCurrentAmplitude(): Int {
-        return if (isRadioEffectPlaying) 0 else currentAmplitude/100
+        return if (isRadioEffectPlaying) 0 else currentAmplitude / 100
     }
 
     // Release the visualizer resources
