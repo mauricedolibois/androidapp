@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -59,13 +58,12 @@ import pt.iade.games.iaderadio.services.audioService.SoundManager
 import pt.iade.games.iaderadio.services.audioService.VoskService
 import pt.iade.games.iaderadio.services.fileService.FileHelper
 import pt.iade.games.iaderadio.services.fileService.Files
-import pt.iade.games.iaderadio.ui.components.LockButton
+import pt.iade.games.iaderadio.ui.components.frequency.LockButton
 import pt.iade.games.iaderadio.ui.components.frequency.AudioCirlce
 import pt.iade.games.iaderadio.ui.components.frequency.AudioLine
 import pt.iade.games.iaderadio.ui.components.frequency.ScanFrequency
 import pt.iade.games.iaderadio.ui.components.shared.IconButton
 import kotlin.String
-import kotlin.compareTo
 import kotlin.math.abs
 import kotlin.toString
 
@@ -202,57 +200,40 @@ fun FrequencyScreen(
                 val sessionId = sharedPref.getInt("sessionId", -1)
 
                 FuelClient.getCurrentRoombySessionID(context, sessionId) { room, roomError ->
-                    if (room?.roomId != 0 && room?.roomName != null) {
-                        currentRoom.value = room
+                    room?.let {
+                        currentRoom.value = it
                         FuelClient.getFrequencBySessionIDAndRoomId(
                             sessionId,
-                            room.roomId.toString()
+                            it.roomId.toString()
                         ) { frequency, freqError ->
-
-                            if (frequency != null) {
-                                frequencyToMatch = frequency
-                                if (abs(frequencyState.value - frequencyToMatch.toDouble()) <= 2) {
-                                    //compare codewords
-                                    val roomCodeMap = hashMapOf(
+                            frequency?.let { freq ->
+                                frequencyToMatch = freq
+                                if (abs(frequencyState.value - freq.toDouble()) <= 2) {
+                                    val roomCodeMap = mapOf(
                                         "Outside Area" to "shift change",
                                         "Prison" to "bob the magic wizard"
                                     )
-                                    val currentRoomName = currentRoom.value?.roomName.toString()
-                                    for ((roomName, code) in roomCodeMap) {
-                                        if (currentRoomName == roomName && recognizedText.contains(
-                                                code
-                                            )
-                                        ) {
-                                            if (currentRoomName == "Prison") {
-                                                soundManager.playSoundById("prison_opened")
-                                            } else if (currentRoomName == "Outside Area") {
-                                                soundManager.playSoundById("shift_changed")
+                                    currentRoom.value?.roomName?.let { roomName ->
+                                        roomCodeMap[roomName]?.takeIf { recognizedText.contains(it) }
+                                            ?.let {
+                                                soundManager.playSoundById(if (roomName == "Prison") "prison_opened" else "shift_changed")
+                                                FuelClient.markInputAsDone(sessionId) { isDone, error ->
+                                                    Log.d("Input", "Input: $roomName $isDone")
+                                                }
                                             }
-
-                                            // Mark input as done if the code is correct
-                                            FuelClient.markInputAsDone(sessionId) { isDone, error ->
-                                                Log.d("Input", "Input: $roomName $isDone")
-                                            }
-                                        }
                                     }
-                                    //play sound when frequency matches
-                                    soundManager.playSoundById(room.roomName.toString())
-
+                                    soundManager.playSoundById(it.roomName)
                                 }
-                            } else {
-                                Log.e("FrequencyScreen", "Frequency Error: $freqError")
-                            }
+                            } ?: Log.e("FrequencyScreen", "Frequency Error: $freqError")
                         }
-                    } else {
-                        Log.e("FrequencyScreen", "Room Error: $roomError")
-                    }
+                    } ?: Log.e("FrequencyScreen", "Room Error: $roomError")
                 }
-                delay(2000L) // Fetch every 2 seconds
+                delay(2000L)
             }
         }
     }
 
-        LaunchedEffect(soundManager) {
+    LaunchedEffect(soundManager) {
         coroutineScope.launch {
             while (true) {
                 soundFactor = soundManager.getCurrentAmplitude().toFloat()
@@ -369,7 +350,6 @@ fun FrequencyScreen(
         }
     }
 }
-
 
 
 @Preview(showBackground = true)

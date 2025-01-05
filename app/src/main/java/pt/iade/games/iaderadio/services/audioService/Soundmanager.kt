@@ -4,10 +4,9 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.media.audiofx.Visualizer
 import android.util.Log
-import androidx.compose.ui.text.toLowerCase
-import kotlin.math.sqrt
 import pt.iade.games.iaderadio.R
 import java.util.Locale
+import kotlin.math.sqrt
 
 class SoundManager(private val context: Context) {
 
@@ -25,7 +24,7 @@ class SoundManager(private val context: Context) {
         val normalizedSoundId = soundId.toLowerCase(Locale.ROOT).replace(" ", "_")
 
         // Check if the requested sound is already playing
-        if (currentSoundId == normalizedSoundId || lastSoundPlayed == normalizedSoundId || (lastSoundPlayed=="shift_changed" && normalizedSoundId=="outside_area")||(lastSoundPlayed=="prison_opened" && normalizedSoundId=="prison")) {
+        if (currentSoundId == normalizedSoundId || lastSoundPlayed == normalizedSoundId || (currentSoundId=="shift_changed" && normalizedSoundId=="outside_area")||(currentSoundId=="prison_opened" && normalizedSoundId=="prison")) {
             Log.d("SoundManager", "Sound $normalizedSoundId is already playing.")
             return
         }
@@ -44,6 +43,7 @@ class SoundManager(private val context: Context) {
                 setOnCompletionListener {
                     Log.d("SoundManager", "Sound $normalizedSoundId completed. Resuming radio effect.")
                     currentSoundId = null
+                    lastSoundPlayed=normalizedSoundId
                     playRadioEffect() // Resume the radio effect after sound finishes
                 }
                 setOnErrorListener { _, what, extra ->
@@ -53,8 +53,6 @@ class SoundManager(private val context: Context) {
                 }
                 start()
             }
-
-            lastSoundPlayed = normalizedSoundId
             currentSoundId = normalizedSoundId
             setupVisualizer()
         } catch (e: Exception) {
@@ -99,7 +97,7 @@ class SoundManager(private val context: Context) {
     // Stop the current sound
     fun stopCurrentSound() {
         mediaPlayer?.apply {
-            if (isPlaying) stop()
+            stop()
             release()
         }
         releaseVisualizer()

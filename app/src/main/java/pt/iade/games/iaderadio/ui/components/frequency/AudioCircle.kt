@@ -18,7 +18,7 @@ import com.example.compose.secondaryLightMediumContrast
 
 @Composable
 fun AudioCirlce(scale: Float, modifier: Modifier = Modifier, factor: Float = 0f) {
-    val infiniteTransition = rememberInfiniteTransition(label = "")
+    rememberInfiniteTransition(label = "")
     AppTheme {
         Box(modifier = modifier) {
             // Infinite transition for scaling animations

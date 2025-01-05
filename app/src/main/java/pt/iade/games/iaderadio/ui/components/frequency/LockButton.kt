@@ -1,5 +1,5 @@
 // File: LockButton.kt
-package pt.iade.games.iaderadio.ui.components
+package pt.iade.games.iaderadio.ui.components.frequency
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.size

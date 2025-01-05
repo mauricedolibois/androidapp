@@ -1,13 +1,10 @@
 package pt.iade.games.iaderadio.network
 
-import android.R
 import android.content.Context
 import android.util.Log
-import pt.iade.games.iaderadio.models.Room
 import com.github.kittinunf.fuel.Fuel
 import com.github.kittinunf.fuel.gson.responseObject
-import pt.iade.games.iaderadio.services.fileService.FileHelper
-import pt.iade.games.iaderadio.services.fileService.Files
+import pt.iade.games.iaderadio.models.Room
 
 object FuelClient {
 
