@@ -24,7 +24,9 @@ class SoundManager(private val context: Context) {
         val normalizedSoundId = soundId.toLowerCase(Locale.ROOT).replace(" ", "_")
 
         // Check if the requested sound is already playing
-        if (currentSoundId == normalizedSoundId || lastSoundPlayed == normalizedSoundId || (currentSoundId=="shift_changed" && normalizedSoundId=="outside_area")||(currentSoundId=="prison_opened" && normalizedSoundId=="prison")) {
+        if (currentSoundId == normalizedSoundId || lastSoundPlayed == normalizedSoundId ||
+            ((currentSoundId=="shift_changed" || lastSoundPlayed=="shift_changed") && normalizedSoundId=="outside_area")||
+            ((currentSoundId=="prison_opened"|| lastSoundPlayed=="prison_opened") && normalizedSoundId=="prison")) {
             Log.d("SoundManager", "Sound $normalizedSoundId is already playing.")
             return
         }
